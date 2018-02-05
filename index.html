@@ -1,0 +1,50 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  
+    <title>Online Source Mapper</title>
+    <meta name="description" content="Online Source Mapper">
+    <meta name="author" content="hezhuojie">
+  
+  </head>
+  
+  <body>
+    <label for="file">Choose js sourcemap file to upload</label>
+    <input type="file" id="file" name="file">
+    line:<input type="text" id="line">
+    column:<input type="text" id="col">
+    <input type="button" id="submit" value="convert">
+    <script src="https://unpkg.com/source-map@0.7.0/dist/source-map.js"></script>
+    <script>
+        sourceMap.SourceMapConsumer.initialize({
+            "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.0/lib/mappings.wasm"
+        });
+    </script>
+    <script type="text/javascript">
+      const fileEl = document.getElementById('file')
+      const submitEl = document.getElementById('submit')
+      const colEl = document.getElementById('col')
+      const lineEl = document.getElementById('line') 
+      let sourcemapConsumer = null
+      fileEl.addEventListener('change', () => {
+        const file = fileEl.files[0]
+        if(file){
+          const fileReader = new FileReader()
+          fileReader.readAsText(file)
+          fileReader.addEventListener('loadend', () => {
+            console.log(fileReader.result.length)
+            new window.sourceMap.SourceMapConsumer(JSON.parse(fileReader.result)).then(smc => sourcemapConsumer = smc)
+          })
+        }
+      })
+      submitEl.addEventListener('click', () =>{
+        if(sourcemapConsumer){
+          alert(JSON.stringify(sourcemapConsumer.originalPositionFor({
+            line: parseInt(lineEl.value),
+            column: parseInt(colEl.value)
+          })))
+        }
+      })
+    </script>
+  </body>
+</html>
